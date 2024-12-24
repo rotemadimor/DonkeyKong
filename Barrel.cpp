@@ -6,46 +6,54 @@
 #include "Point.h"
 #include "Barrel.h"
 
-void Barrel::hitMario() {
-	//Point currMario = getMarioLocation();
-	return;
-	
+
+
+
+void Barrel::createBarrel(Board &pBoard) {
+
+	srand(time(NULL));
+	int direction = 2 * ( rand() % 2);
+	barrel = Point(14 + direction , 1, 'O');
+	barrel.setBoard(pBoard);
+
 }
-void Barrel::born() {
 
-	int dirFlag = 14;
-	barrel = Point(16, 1, 'O');
-	//barrel.draw();
-}
-void Barrel::moveBarrel() {
 
-	char floor, nextCharOnBoard;
-	nextCharOnBoard = 'r';
+bool Barrel::moveBarrel() {
+	char floor;
+	if (barrel.isAboveFloor()) {
+		 if (barrel.fallCounter >= 8) {
+			barrel.explode();
 
-	if (barrel.IsOnFloor()) {
-		floor = this->getFloorType();
+			barrel.fallCounter = 0;
+			return false;
+		 }
+		 else if (barrel.isAboveFloor())
+			 barrel.fallCounter = 0;
+		floor = getFloorType();
 		switch (floor) {
-		case '<':
+		case FLOOR_LEFT:
 			barrel.setDirection(barrel.directions[1]);
-			barrel.moveOneByDirection();
 			break;
-		case '>':
+		case FLOOR_RIGHT:
 			barrel.setDirection(barrel.directions[3]);
-			barrel.moveOneByDirection();
-			break;
-		case '=':
-			barrel.setDirection(barrel.prevDir);
-			//barrel.moveOneByDirection();
 			break;
 		default:
 			break;
 		}
+		barrel.move();
 	}
-
-	
+	else {
+		barrel.moveOneDown();
+		barrel.fallCounter++;
+		
+	}
+	return true;
 }
 
 char Barrel::getFloorType() {
-	 return barrel.pBoard->getChar(barrel.x, barrel.y + 1);
+	return barrel.getOneCharBelow();
 }
+
+
  

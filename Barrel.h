@@ -6,13 +6,11 @@
 #include "Point.h"
 
 class Barrel {
-public:
 	Point barrel;
-	//void explode();
-	void hitMario();
-	void born();
-	void moveBarrel();
+public:
+	Barrel() {};
+	void createBarrel(Board &pBoard);
+	bool moveBarrel();
 	char getFloorType();
-	
-	
+	Point& getBarrelPoint() { return barrel; }
 };

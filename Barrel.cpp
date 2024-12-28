@@ -6,16 +6,11 @@
 #include "Point.h"
 #include "Barrel.h"
 
-
-
-
 void Barrel::createBarrel(Board &pBoard) {
-
-	srand(time(NULL));
+	//srand(time(NULL));
 	int direction = 2 * ( rand() % 2);
 	barrel = Point(14 + direction , 1, 'O');
 	barrel.setBoard(pBoard);
-
 }
 
 

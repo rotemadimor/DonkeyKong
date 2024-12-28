@@ -16,7 +16,7 @@ static constexpr char FLOOR_LEFT = '<';
 static constexpr char FLOOR_STRAIGHT = '=';
 static constexpr char LADDER = 'H';
 static constexpr char AIR = ' ';
-static constexpr char EXPLODE = 'x';
+static constexpr char EXPLODE = '*';
 
 static constexpr char DEFAULT_POINT = '*';
 static constexpr int DEFAULT_X_POINT = 0;
@@ -62,6 +62,7 @@ public:
 
 	void keyPressed(char key);
 	void move();
+	bool isNextCharFloor();
 	int fall();
 	bool moveOneByDirection();
 	void moveOneDown();
@@ -90,6 +91,9 @@ public:
 	void setBoard(Board& board) { pBoard = &board;}
 	void setDirections(Direction d) {prevDir = dir; dir = d;}
 	void setDirection(Direction d) { dir = d;}
+	void oppositeDirection();
+
+	bool isNewPointOnFloor(int newX, int newY);
 
 };
 

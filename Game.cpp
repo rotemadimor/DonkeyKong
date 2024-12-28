@@ -11,8 +11,10 @@
 #include "Menu.h"
 
 
+
 void Game::run() {
 	ShowConsoleCursor(false);
+	srand(time(NULL));
 	menu.printMenu();
 	char key;
 	while (true) {
@@ -37,27 +39,35 @@ void Game::run() {
 	}
 }
 
-
-
-
 void Game::createBarrels(Board& board) {
 	int i;
 	for (i = 0; i < sizeBarrels; i++) {
 		barrels[i].createBarrel(board);
 	}
 }
+
+void Game::createGhosts(Board& board) {
+	int i;
+	for (i = 0; i < sizeGhosts; i++) {
+		ghosts[i].createGhost(board);
+	}
+}
+
 void Game::gameLoop() {
-	int count = 0;
+	int time = 0;
 	char key;
 	bool pauseFlag = false;
 	while (lives > 0 && !isWin) {
-		count++;
-		if (count % 20 == 0 && barrelsCreated < sizeBarrels) {
+		time++;
+		if (time % 20 == 0 && barrelsCreated < sizeBarrels) {
 			barrelsOnBoard++;
 			barrels[barrelsOnBoard].createBarrel(board);
 			barrelsCreated++;
 		}
 		player.getMarioPoint().draw();
+		for (int j = 0; j < sizeGhosts; j++) {
+			ghosts[j].getGhostPoint().draw();
+		}
 		for (int j = barrelsOnBoard; j >= 0; j--) {
 			barrels[j].getBarrelPoint().draw();
 		}
@@ -82,11 +92,26 @@ void Game::gameLoop() {
 				break;
 			}
 			else if (!(barrels[j].moveBarrel())) {
+				
 				if (player.isMarioAroundExplosion(barrels[j].getBarrelPoint())) {
 					lifeLost();
 				}
 				eraseBarrel(j, barrelsOnBoard);
 				barrelsOnBoard--;
+				break;
+			}
+		}
+		for (int j = 0; j < sizeGhosts; j++) {
+			ghosts[j].getGhostPoint().erase();
+			for (int i = 0; i < sizeGhosts && i != j; i++) {
+				if (isSwappedLocations(ghosts[j].getGhostPoint(), ghosts[i].getGhostPoint())) {
+					ghosts[j].getGhostPoint().oppositeDirection();
+					ghosts[i].getGhostPoint().oppositeDirection();
+				}
+			}
+			ghosts[j].moveGhost();
+			if (isTheSameLocation(player.getMarioPoint(), ghosts[j].getGhostPoint())) {
+				lifeLost();
 				break;
 			}
 		}
@@ -157,6 +182,7 @@ void Game::resetLevel() {
 	player.getMarioPoint().setChar('@');
 	currSize = sizeBarrels;
 	createBarrels(board);
+	createGhosts(board);
 }
 
 void Game::eraseBarrel(int j, int barrelsOnBoard) {

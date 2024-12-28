@@ -24,6 +24,13 @@ void Point::move() {
 	}
 }
 
+bool Point::isNextCharFloor() {
+	int newX = x + dir.x;
+	int newY = y + 1;
+	char nextCharOnBoard = pBoard->getChar(newX, newY);
+	return isFloor(nextCharOnBoard);
+}
+
 bool Point::moveOneByDirection() {
 	int newY = y + prevDir.y + dir.y;
 	int newX = x + prevDir.x + dir.x;
@@ -114,6 +121,28 @@ bool Point::isOnLadder() {
 	char oneBelow = pBoard->getChar(x, y + 1);
 	return (oneBelow == LADDER);
 }
+
+void Point::oppositeDirection(){
+	if (IsNextDirectionRight()) {
+		setDirection(directions[1]);
+	}
+	else if (IsNextDirectionLeft()) {
+		setDirection(directions[3]);
+	}
+}
+
+bool Point::isNewPointOnFloor(int newX, int newY) {
+	if (isInsideBoard(newX, newY)) {
+		x = newX;
+		y = newY;
+		if (isAboveFloor()) {
+			return true;
+		}
+		else { return false;}
+	}
+	else {return false;}
+}
+
 
 void Point::explode() {
 	pBoard->drawcharOnBoard(x + 1, y, EXPLODE); //right

@@ -10,6 +10,7 @@ static constexpr char LEFT = 'a';
 static constexpr char DOWN = 'x';
 static constexpr char RIGHT = 'd';
 static constexpr char STAY = 's';
+static constexpr char HAMMER = 'p';
 
 static constexpr char FLOOR_RIGHT = '>';
 static constexpr char FLOOR_LEFT = '<';
@@ -30,27 +31,28 @@ class Point {
 	int x = DEFAULT_X_POINT , y = DEFAULT_Y_POINT;
 	char ch = DEFAULT_POINT;
 public:
-	static constexpr char keys[] = { UP, LEFT, DOWN, RIGHT, STAY };
+	static constexpr char keys[] = { UP, LEFT, DOWN, RIGHT, STAY ,HAMMER};
 	static constexpr size_t numKeys = sizeof(keys) / sizeof(keys[0]);
 	struct Direction { int x, y; };
 	static constexpr Direction directions[] = { {0, -1}, {-1, 0}, {0, 1}, {1, 0}, {0, 0} };
 	Direction dir{ 0 , 0 };
 	Direction prevDir{ 0 , 0 };
 	int fallCounter = 0;
-
+	bool isSilent = false;
 	Board* getPBoard() { return pBoard; }
 	int getX() const { return x; }
 	int getY() const { return y; }
-
+	void setIsSilentPoint(bool _isSilent) { isSilent = _isSilent; }
 	void draw(char c) const {
 		gotoxy(x, y);
-		std::cout << c;
+		if(!isSilent) std::cout << c;
 	}
 	void draw() const { 
 		draw(ch);
 	}
 	void erase() {
-		draw(' ');
+		gotoxy(x, y);
+		std::cout << ' ';
 	}
 	void setChar(char c) {
 		ch = c;
@@ -58,9 +60,11 @@ public:
 	void setPoint(int _x, int _y) { x = _x; y = _y; }
 	Point() {};
 	Point(int _x, int _y, char _ch, Direction _dir = directions[4]) : x(_x), y(_y), ch(_ch),  dir(_dir)  {}
+	Point(int _x, int _y, char _ch, Board& _pBoard, Direction _dir = directions[4]) : x(_x), y(_y), ch(_ch),pBoard(&_pBoard), dir(_dir) {}
 	Point(int _x, int _y) : x(_x), y(_y) {}
+	Point(int _x, int _y, Board& _pBoard) : x(_x), y(_y), pBoard(&_pBoard) {}
 
-	void keyPressed(char key);
+	bool keyPressed(char key);
 	void move();
 	bool isNextCharFloor();
 	int fall();
@@ -86,6 +90,7 @@ public:
 	bool IsNewLocationValid(int newX, int newY);
 	bool isInsideBoard() const;
 	bool isInsideBoard(int newX, int newY) const;
+	bool isNextCharQLimit(int newX, int newY) const;
 	bool isFloor(char ch) const;
 	bool isOnLadder();
 	void setBoard(Board& board) { pBoard = &board;}
@@ -96,4 +101,5 @@ public:
 	bool isNewPointOnFloor(int newX, int newY);
 
 };
+
 

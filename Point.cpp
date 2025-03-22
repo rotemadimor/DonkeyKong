@@ -2,14 +2,15 @@
 #include "Board.h"
 
 
-void Point::keyPressed(char key) {
+bool Point::keyPressed(char key) {
 	for (size_t i = 0; i < numKeys; i++) {
 		if (std::tolower(key) == keys[i]) {
 			prevDir = dir;
 			dir = directions[i];
-			return;
+			return true;
 		}
 	}
+	return false;
 }
 
 void Point::move() {
@@ -18,7 +19,9 @@ void Point::move() {
 	char currCharOnBoard = pBoard->getChar(x, y);
 	char nextCharOnBoard = pBoard->getChar(newX, newY);
 	if (IsNewLocationValid(newX, newY, nextCharOnBoard)) {
-		pBoard->drawOnBoard(x, y);
+		if (!isSilent) {
+			pBoard->drawOnBoard(x, y);
+		}
 		x = newX;
 		y = newY;
 	}
@@ -36,7 +39,9 @@ bool Point::moveOneByDirection() {
 	int newX = x + prevDir.x + dir.x;
 	char nextCharOnBoard = pBoard->getChar(newX, newY);
 	if (IsNewLocationValid(newX, newY, nextCharOnBoard)) {
-		pBoard->drawOnBoard(x, y);
+		if (!isSilent) {
+			pBoard->drawOnBoard(x, y);
+		}
 		y = newY;
 		x = newX;
 		return true;
@@ -46,12 +51,16 @@ bool Point::moveOneByDirection() {
 
 
 void Point::moveOneDown() {
-	pBoard->drawOnBoard(x, y);
+	if (!isSilent) {
+		pBoard->drawOnBoard(x, y);
+	}
 	y = y + 1;
 }
 
 void Point::moveOneUp() {
-	pBoard->drawOnBoard(x, y);
+	if (!isSilent) {
+		pBoard->drawOnBoard(x, y);
+	}
 	y = y - 1;
 
 }
@@ -81,7 +90,9 @@ bool Point::isAboveLadder() const{
 
 
 void Point::updateLocation(int newX, int newY) {
-	pBoard->drawOnBoard(x,y);
+	if (!isSilent) {
+		pBoard->drawOnBoard(x, y);
+	}
 	y = y + newY;
 	x = x + newX;
 	draw();
@@ -107,11 +118,16 @@ bool Point::IsNewLocationValid(int newX, int newY) {
 }
 
 bool Point::isInsideBoard() const {
-	return (x < 80 && y < 24) && (x >= 0 && y > 0);
+	return (x < 80 && y < 24) && (x >= 0 && y > 0) && !isNextCharQLimit(x, y);
+}
+
+bool Point::isNextCharQLimit(int newX, int newY) const {
+	char nextCharOnBoard = this->pBoard->getChar(newX, newY);
+	return (nextCharOnBoard == 'Q');
 }
 
 bool Point::isInsideBoard(int newX, int newY) const {
-	return (newX < 80 && newY < 24) && (newX >= 0 && newY > 0);
+	return (newX < 80 && newY < 24) && (newX >= 0 && newY > 0) && !isNextCharQLimit(newX,newY) ;
 }
 
 bool Point::isFloor(char ch) const {

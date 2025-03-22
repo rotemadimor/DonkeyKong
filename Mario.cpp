@@ -7,26 +7,30 @@ bool Mario::moveMario() {
 		mario.moveOneDown();
 		mario.fallCounter++;
 		if (mario.isAboveFloor() && (mario.fallCounter >= 5)) {
-			mario.explode();
+			if (!mario.isSilent) {
+				mario.explode();
+			}
 			mario.fallCounter = 0;
 			return false;
 		}
-		else if (mario.isAboveFloor())
+		else if (mario.isAboveFloor()) {
 			mario.fallCounter = 0;
+		}
 	}
 	else if (jumping) {
 			jumping = mario.moveOneByDirection();
 			if (jumping) {
-				jumpingCounter--;
-				if (jumpingCounter <= 2) {
-					mario.setDirection(mario.directions[2]);
-				}
 				if (jumpingCounter == 0) {
 					jumping = false;
 					jumpingCounter = 4;
 					mario.setDirections(mario.prevDir);
 				}
+				else if (jumpingCounter <= 2) {
+					mario.setDirection(mario.directions[2]);
+				}
+				jumpingCounter--;
 			}
+			else mario.setDirection(mario.prevDir);
 	}
 	else if (onLadderUp) {
 		if (!mario.isBelowFloor()) mario.moveOneUp();
@@ -89,12 +93,11 @@ void Mario::moveBelowFloor() {
 	mario.stay();
 }
 
-
-
 void Mario::resetMario() {
 	mario.setPoint(0, 23);
 	mario.stay();
 }
+
 bool Mario::isMarioAroundExplosion(Point p) {
 	int xM = this->mario.getX();
 	int yM = this->mario.getY();

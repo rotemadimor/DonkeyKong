@@ -6,48 +6,42 @@
 #include "Point.h"
 #include "Barrel.h"
 
-void Barrel::createBarrel(Board &pBoard) {
-	//srand(time(NULL));
-	int direction = 2 * ( rand() % 2);
-	barrel = Point(14 + direction , 1, 'O');
-	barrel.setBoard(pBoard);
-}
-
-
-bool Barrel::moveBarrel() {
+bool Barrel::moveEnemy() {
 	char floor;
-	if (barrel.isAboveFloor()) {
-		 if (barrel.fallCounter >= 8) {
-			barrel.explode();
+	if (enemy.isAboveFloor()) {
+		 if (enemy.fallCounter >= 8) {
+			 if (!enemy.isSilent) {
+				enemy.explode();
+			 }
 
-			barrel.fallCounter = 0;
+			 enemy.fallCounter = 0;
 			return false;
 		 }
-		 else if (barrel.isAboveFloor())
-			 barrel.fallCounter = 0;
+		 else if (enemy.isAboveFloor())
+			 enemy.fallCounter = 0;
 		floor = getFloorType();
 		switch (floor) {
 		case FLOOR_LEFT:
-			barrel.setDirection(barrel.directions[1]);
+			enemy.setDirection(enemy.directions[1]);
 			break;
 		case FLOOR_RIGHT:
-			barrel.setDirection(barrel.directions[3]);
+			enemy.setDirection(enemy.directions[3]);
 			break;
 		default:
 			break;
 		}
-		barrel.move();
+		enemy.move();
 	}
 	else {
-		barrel.moveOneDown();
-		barrel.fallCounter++;
+		enemy.moveOneDown();
+		enemy.fallCounter++;
 		
 	}
 	return true;
 }
 
 char Barrel::getFloorType() {
-	return barrel.getOneCharBelow();
+	return enemy.getOneCharBelow();
 }
 
 

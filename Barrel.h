@@ -4,13 +4,18 @@
 #include "Board.h"
 #include "utils.h"
 #include "Point.h"
+#include "Enemy.h"
 
-class Barrel {
-	Point barrel;
+
+class Barrel:public Enemy {
 public:
 	Barrel() {};
-	void createBarrel(Board &pBoard);
-	bool moveBarrel();
+	Barrel(int x, int y, char icon, Board& pBoard) : Enemy(x, y, icon, pBoard) {
+		enemy.setDirection(enemy.directions[2]);
+	}
+	bool moveEnemy() override;
 	char getFloorType();
-	Point& getBarrelPoint() { return barrel; }
+	//Point& getEnemyPoint() { return barrel; }
 };
+
+

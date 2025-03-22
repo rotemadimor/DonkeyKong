@@ -1,5 +1,5 @@
-#pragma once
-#include "Game.h"
+﻿#pragma once
+
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
@@ -10,15 +10,20 @@
 #include "utils.h"
 #include "Point.h"
 #include "Mario.h"
+#include "GameToSave.h"
 #include "Menu.h"
+#include"Steps.h"
+#include "Results.h"
 
-void Game::run() {
+void GameToSave::run() {
+
 	ShowConsoleCursor(false);
 	srand(time(NULL));
 	getAllBoardFileNames(vec_to_fill);
 	menu.printMenu();
 	int start = 0;
 	char key;
+	
 	while (true) {
 		key = _getch();
 		if (key == GAME_START) {
@@ -27,6 +32,7 @@ void Game::run() {
 			isWin = false;
 			resetLevel();
 			gameLoop();
+			
 			menu.printMenu();
 		}
 		else if (key == INSTRUCTIONS) {
@@ -39,53 +45,23 @@ void Game::run() {
 	}
 }
 
-void Game::createBarrels(Board& board) {
-	int i;
-	for (i = 0; i < sizeBarrels; i++) {
-		Barrel temp;
-		temp = Barrel(board.getXDonkey(), board.getYDonkey() + 1, 'O', board);
-		barrels.push_back(temp);
-	}
-}
 
-void Game::menuChooseLevel(int start) {
-	if (vec_to_fill.size() > MAX_LEVELS_IN_MENU) {
-		menu.printChooseLevel(vec_to_fill, start);
-		char nev = _getch();
-		while (isNotNumber(nev)) {
-			if (nev == 'n') {
-				menu.printChooseLevel(vec_to_fill, MAX_LEVELS_IN_MENU - start);
-			}
-			if (nev == 'p') {
-				menu.printChooseLevel(vec_to_fill, start);
-			}
-			nev = _getch();
-		}
-		if (isNotNumber(nev)) {
-			level = nev - 49;
-		}
-	}
-	else {
-		menu.printChooseLevel(vec_to_fill, start);
-		char nev = _getch();
-		while (isNotNumber(nev)) {
-			nev = _getch();
-		}
-		if (!isNotNumber(nev)) {
-			level = nev - 49;
-		}
-	}
-}
 
-void Game::createHammerInGame(Board& pBoard) {
-	hammer.createHammer(pBoard);
-}
-
-void Game::gameLoop() {
+void GameToSave::gameLoop() {
 	char key = ' ', key2 = ' ';
 	bool pauseFlag = false;
+	std::string filename_prefix, stepsFilename, resultsFilename;
+	randomSeed = static_cast<long>(std::chrono::system_clock::now().time_since_epoch().count());
+	steps.setRandomSeed(randomSeed);
+
 	while (lives > 0 && !isWin && level < vec_to_fill.size()) {
+
+		filename_prefix = vec_to_fill[level].substr(0, vec_to_fill[level].find_last_of('.'));
+		stepsFilename = filename_prefix + ".steps";
+		resultsFilename = filename_prefix + ".result";
+
 		iteration++;
+
 		if (iteration % 20 == 0 && barrels.size() < sizeBarrels) {
 			barrels.push_back(Barrel(board.getXDonkey(), board.getYDonkey() + 1, 'O', board));
 		}
@@ -104,15 +80,19 @@ void Game::gameLoop() {
 		if (_kbhit() && !player.getJumping()) {
 			key = _getch();
 			if (key != 'p' && key != 'P') {
-				player.getMarioPoint().keyPressed(key);
+				if (player.getMarioPoint().keyPressed(key)) {
+					steps.addStep(iteration, key);
+				}
 			}
 			if (key == ESC) pauseGame();
 		}
+
 		Sleep(MOVE_SLEEP);
 
 		if (_kbhit() && !player.getJumping()) {
 			key2 = _getch();
 			if (key2 == 'p' || key2 == 'P') {
+				steps.addStep(iteration, key2);
 				if (player.getHasHammer()) {
 					for (int g = 0; g < ghosts.size(); g++) {
 						if (isMarioHitEnemy(player.getMarioPoint(), ghosts[g].getEnemyPoint())) {
@@ -128,7 +108,9 @@ void Game::gameLoop() {
 				}
 			}
 			else {
-				player.getMarioPoint().keyPressed(key2);
+				if (player.getMarioPoint().keyPressed(key2)) {
+					steps.addStep(iteration, key2);
+				}
 			}
 		}
 
@@ -155,7 +137,7 @@ void Game::gameLoop() {
 			player.setHasHammer(true);
 			board.printHammerState(player.getHasHammer());
 			hammer.getHammerPoint().erase();
-
+			
 		}
 		for (int j = 0; j < barrels.size(); j++) {
 			barrels[j].getEnemyPoint().erase();
@@ -174,7 +156,7 @@ void Game::gameLoop() {
 		}
 		for (int j = 0; j < ghosts.size(); j++) {
 			ghosts[j].getEnemyPoint().erase();
-			board.drawcharOnBoard(ghosts[j].getEnemyPoint().getX(), ghosts[j].getEnemyPoint().getY(), ' ');
+			board.drawcharOnBoard(ghosts[j].getEnemyPoint().getX(), ghosts[j].getEnemyPoint().getY(),' ');
 			for (int i = 0; i < ghosts.size() && i != j; i++) {
 				if (isSwappedLocations(ghosts[j].getEnemyPoint(), ghosts[i].getEnemyPoint())) {
 					ghosts[j].getEnemyPoint().oppositeDirection();
@@ -190,124 +172,47 @@ void Game::gameLoop() {
 		if (reachedPauline()) {
 			if (iteration < SCORE_TIME) {
 				score += 100;
+				results.setScoreInResults(100);
 			}
-			if(!isSilent) menu.printWinScreen();
+			menu.printWinScreen();
+			results.addResult(iteration, results.finished);
+		
 			if (vec_to_fill.size() - 1 == level) {
 				isWin = true;
 				level = 0;
 				score = 0;
 				continue;
 			}
+			saveFiles(stepsFilename, resultsFilename);
 			level++;
+			resetResultsSteps();
 			resetLevel();
 		}
+
 	}
-	if (lives == 0) { menu.printGameOverScreen(); }
-}
-
-
-void Game::pauseGame() {
-	while (true) {
-		if (_kbhit()) {
-			char key = _getch();
-			if (key == ESC) {
-				break;
-			}
-		}
+	if( lives == 0){ 
+		menu.printGameOverScreen();
+		saveFiles(stepsFilename, resultsFilename);
 	}
 }
 
-bool Game::ishitMario(int i) {
-	if (isTheSameLocation(barrels[i].getEnemyPoint(), player.getMarioPoint())) {
-		if (!isSilent) {
-			barrels[i].getEnemyPoint().explode();
-		}
-		if (player.isMarioAroundExplosion(barrels[i].getEnemyPoint())) {
-			return true;
-		}
-		return true;
-	}
-	return false;
+void GameToSave::resetResultsSteps() {
+	results.setScoreInResults(0);
+	results.emptyResults();
+	steps.emptySteps();
 }
 
-bool Game::isTheSameLocation(Point p1, Point p2) {
-
-	if (p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
-		return true;
-	}
-	else if (isSwappedLocations(p1, p2)) {
-		return true;
-	}
-	return false;
+void GameToSave::saveFiles(std::string stepsFilename, std::string resultsFilename) {
+	results.saveResults(resultsFilename);
+	steps.saveSteps(stepsFilename);
 }
-void Game::lifeLost() {
+
+void GameToSave::lifeLost() {
 	lives--;
 	if (lives > 0) {
 		menu.printLoseScreen(lives);
 		Sleep(SCREEN_SLEEP);
 		resetLevel();
 	}
-}
-
-bool Game::isSwappedLocations(Point p1, Point p2) {
-	return ((p1.getX() == p2.getX() + p2.dir.x && p1.getY() == p2.getY() + p2.dir.y) || (p2.getX() == p1.getX() + p1.dir.x && p2.getY() == p1.getY() + p1.dir.y));
-}
-
-void Game::resetLevel() {
-	bool isValidScreen = true;
-	ghosts.clear();
-	barrels.clear();
-	while (board.load(vec_to_fill[level], pauline.getPaulinePoint(), player.getMarioPoint(), hammer.getHammerPoint(), ghosts, lives, score, randomSeed) == -1) {
-		level++;
-		if (level == vec_to_fill.size()) {
-			isValidScreen = false;
-			if (!isSilent) {
-				menu.printinvalidLastScreen();
-			}
-			break;
-		}
-		if (!isSilent) {
-			menu.printinvalidScreen();
-		}
-	}
-	if (isValidScreen) {
-		board.reset();
-		player.setHasHammer(false);
-		if (!isSilent) {
-			board.print();
-			board.printLivesLeft(lives);
-			board.printHammerState(false);
-			board.printScore(score);
-		}
-	}
-}
-
-
-
-void Game::eraseBarrel(int j) {
-	barrels[j].getEnemyPoint().erase();
-	barrels.erase(barrels.begin() + j);
-}
-
-bool Game::reachedPauline() {
-	return isTheSameLocation(player.getMarioPoint(), pauline.getPaulinePoint());
-}
-
-bool Game::reachedHammer() {
-	return isTheSameLocation(player.getMarioPoint(), hammer.getHammerPoint());
-}
-bool Game::isMarioHitEnemy(Point pMario, Point pEnemy) {
-	return ((pMario.getX() == pEnemy.getX() + 2 * pEnemy.dir.x || pEnemy.getX() == pMario.getX() + 2 * pMario.dir.x) && pMario.getY() == pEnemy.getY());
-}
-
-
-void Game::getAllBoardFileNames(std::vector<std::string>& vec_to_fill) {
-	namespace fs = std::filesystem;
-	for (const auto& entry : fs::directory_iterator(fs::current_path())) {
-		auto filename = entry.path().filename();
-		auto filenameStr = filename.string();
-		if (filenameStr.substr(0, 6) == "dkong_" && filename.extension() == ".screen") {
-			vec_to_fill.push_back(filenameStr);
-		}
-	}
+	results.addResult(iteration, results.died);
 }

@@ -1,5 +1,4 @@
-Noa Vassal 322719733
-Rotem Adimor 211803564
+This Game was developed by Noa Vassal & Rotem Adimor as a part of the course Object Oriented Programming and C++.
 
 Advanced Features:
 

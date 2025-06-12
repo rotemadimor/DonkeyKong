@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,22 +130,37 @@
   <ItemGroup>
     <ClCompile Include="Barrel.cpp" />
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameToSave.cpp" />
+    <ClCompile Include="GameFromFile.cpp" />
     <ClCompile Include="Ghost.cpp" />
+    <ClCompile Include="Hammer.cpp" />
+    <ClCompile Include="LadderGhost.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mario.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Results.cpp" />
+    <ClCompile Include="Steps.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Barrel.h" />
     <ClInclude Include="Board.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameToSave.h" />
+    <ClInclude Include="GameFromFile.h" />
     <ClInclude Include="Ghost.h" />
+    <ClInclude Include="Hammer.h" />
+    <ClInclude Include="LadderGhost.h" />
     <ClInclude Include="Mario.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Pauline.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="Results.h" />
+    <ClInclude Include="Steps.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

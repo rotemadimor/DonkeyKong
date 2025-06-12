@@ -10,7 +10,7 @@
 class Barrel:public Enemy {
 public:
 	Barrel() {};
-	Barrel(int x, int y, char icon, Board& pBoard) : Enemy(x, y, icon, pBoard) {
+	Barrel(const Point& point) : Enemy(point) {
 		enemy.setDirection(enemy.directions[2]);
 	}
 	bool moveEnemy() override;

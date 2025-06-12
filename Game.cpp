@@ -43,7 +43,7 @@ void Game::createBarrels(Board& board) {
 	int i;
 	for (i = 0; i < sizeBarrels; i++) {
 		Barrel temp;
-		temp = Barrel(board.getXDonkey(), board.getYDonkey() + 1, 'O', board);
+		temp = Barrel(Point(board.getXDonkey(), board.getYDonkey() + 1, 'O', board));
 		barrels.push_back(temp);
 	}
 }
@@ -87,7 +87,7 @@ void Game::gameLoop() {
 	while (lives > 0 && !isWin && level < vec_to_fill.size()) {
 		iteration++;
 		if (iteration % 20 == 0 && barrels.size() < sizeBarrels) {
-			barrels.push_back(Barrel(board.getXDonkey(), board.getYDonkey() + 1, 'O', board));
+			barrels.push_back(Barrel(Point(board.getXDonkey(), board.getYDonkey() + 1, 'O', board)));
 		}
 		player.getMarioPoint().draw();
 		if (player.getHasHammer() == false) {
@@ -95,7 +95,7 @@ void Game::gameLoop() {
 			board.printHammerState(player.getHasHammer());
 		}
 		for (int j = 0; j < ghosts.size(); j++) {
-			ghosts[j].getEnemyPoint().draw();
+			ghosts[j]->getEnemyPoint().draw();
 		}
 		for (int j = 0; j < barrels.size(); j++) {
 			barrels[j].getEnemyPoint().draw();
@@ -115,8 +115,8 @@ void Game::gameLoop() {
 			if (key2 == 'p' || key2 == 'P') {
 				if (player.getHasHammer()) {
 					for (int g = 0; g < ghosts.size(); g++) {
-						if (isMarioHitEnemy(player.getMarioPoint(), ghosts[g].getEnemyPoint())) {
-							ghosts[g].getEnemyPoint().erase();
+						if (isMarioHitEnemy(player.getMarioPoint(), ghosts[g]->getEnemyPoint())) {
+							ghosts[g]->getEnemyPoint().erase();
 							ghosts.erase(ghosts.begin() + g);
 						}
 					}
@@ -134,8 +134,8 @@ void Game::gameLoop() {
 
 		if ((key == 'p' || key == 'P') && player.getHasHammer()) {
 			for (int g = 0; g < ghosts.size(); g++) {
-				if (isMarioHitEnemy(player.getMarioPoint(), ghosts[g].getEnemyPoint())) {
-					ghosts[g].getEnemyPoint().erase();
+				if (isMarioHitEnemy(player.getMarioPoint(), ghosts[g]->getEnemyPoint())) {
+					ghosts[g]->getEnemyPoint().erase();
 					ghosts.erase(ghosts.begin() + g);
 				}
 			}
@@ -173,16 +173,16 @@ void Game::gameLoop() {
 			}
 		}
 		for (int j = 0; j < ghosts.size(); j++) {
-			ghosts[j].getEnemyPoint().erase();
-			board.drawcharOnBoard(ghosts[j].getEnemyPoint().getX(), ghosts[j].getEnemyPoint().getY(), ' ');
+			ghosts[j]->getEnemyPoint().erase();
+			board.drawcharOnBoard(ghosts[j]->getEnemyPoint().getX(), ghosts[j]->getEnemyPoint().getY(), ' ');
 			for (int i = 0; i < ghosts.size() && i != j; i++) {
-				if (isSwappedLocations(ghosts[j].getEnemyPoint(), ghosts[i].getEnemyPoint())) {
-					ghosts[j].getEnemyPoint().oppositeDirection();
-					ghosts[i].getEnemyPoint().oppositeDirection();
+				if (isSwappedLocations(ghosts[j]->getEnemyPoint(), ghosts[i]->getEnemyPoint())) {
+					ghosts[j]->getEnemyPoint().oppositeDirection();
+					ghosts[i]->getEnemyPoint().oppositeDirection();
 				}
 			}
-			ghosts[j].moveEnemy();
-			if (isTheSameLocation(player.getMarioPoint(), ghosts[j].getEnemyPoint())) {
+			ghosts[j]->moveEnemy();
+			if (isTheSameLocation(player.getMarioPoint(), ghosts[j]->getEnemyPoint())) {
 				lifeLost();
 				break;
 			}
@@ -255,7 +255,7 @@ bool Game::isSwappedLocations(Point p1, Point p2) {
 
 void Game::resetLevel() {
 	bool isValidScreen = true;
-	ghosts.clear();
+	clearVector();
 	barrels.clear();
 	while (board.load(vec_to_fill[level], pauline.getPaulinePoint(), player.getMarioPoint(), hammer.getHammerPoint(), ghosts, lives, score, randomSeed) == -1) {
 		level++;
@@ -310,4 +310,11 @@ void Game::getAllBoardFileNames(std::vector<std::string>& vec_to_fill) {
 			vec_to_fill.push_back(filenameStr);
 		}
 	}
+}
+void Game::clearVector() {
+
+	for (Ghost* g: ghosts) {
+		delete g;
+	}
+	ghosts.clear();
 }

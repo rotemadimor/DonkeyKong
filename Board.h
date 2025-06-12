@@ -54,7 +54,7 @@ public:
     void printLivesLeft(int lives);
     void printHammerState(bool state);
     void printScore(int score);
-    int load(const std::string& filename, Point& pPauline, Point& pMario, Point& pHammer, vector<Enemy>& pGhostsVec,int lives, int score,long randomSeed);
+    int load(const std::string& filename, Point& pPauline, Point& pMario, Point& pHammer, vector<Ghost*>& pGhostsVec,int lives, int score,long randomSeed);
     int getXDonkey() { return xDonkey; }
     int getYDonkey() { return yDonkey; }
     void setIsSilentBoard(bool _isSilent) { isSilent = _isSilent; }

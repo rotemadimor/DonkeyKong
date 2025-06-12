@@ -44,7 +44,7 @@ void Board::printScore(int score) {
 	drawStringAndNumOnBoard(xLegend, yLegend + 2, "Score:", score);
 }
 
-int Board::load(const std::string& filename, Point& pPauline, Point& pMario, Point& pHammer,vector<Enemy>& pGhostsVec,int lives, int score, long randomSeed) {
+int Board::load(const std::string& filename, Point& pPauline, Point& pMario, Point& pHammer,vector<Ghost*>& pGhostsVec,int lives, int score, long randomSeed) {
 	std::ifstream screen_file(filename);
 	bool marioExist = false, paulineExist = false, donkeyExist = false;
 
@@ -99,11 +99,11 @@ int Board::load(const std::string& filename, Point& pPauline, Point& pMario, Poi
 				originalBoard[curr_row][curr_col] = ' ';
 			}
 			else if (c == 'x') {
-				pGhostsVec.emplace_back(Ghost(curr_col, curr_row,c, *this,randomSeed));
+				pGhostsVec.emplace_back(new Ghost(Point(curr_col, curr_row,c, *this),randomSeed));
 				originalBoard[curr_row][curr_col] = ' ';
 			}
 			else if (c == 'X') {
-				pGhostsVec.emplace_back(LadderGhost(curr_col, curr_row, c, *this, randomSeed));
+				pGhostsVec.emplace_back(new LadderGhost(Point(curr_col, curr_row, c, *this),randomSeed));
 				originalBoard[curr_row][curr_col] = ' ';
 			}
 			else{

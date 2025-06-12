@@ -12,11 +12,12 @@ protected:
 	long randomSeed = 0;
 public:
 	Ghost() {};	
-	Ghost(int x, int y,char icon, Board& pBoard,long _randomSeed) : Enemy(x,y,icon, pBoard){
+	Ghost(Point point,long _randomSeed) : Enemy(point){
 		randomSeed = _randomSeed;
 		int randDir = 2 * (randomSeed % 2) + 1;
 		enemy.setDirection(enemy.directions[randDir]);
 	}
+	virtual ~Ghost() {};
 	virtual bool moveEnemy() override;
 	void setRandomSeed(long randSeed) { randomSeed = randSeed; }
 };

@@ -18,6 +18,7 @@
 #include <vector>
 #include "Pauline.h"
 #include <cctype>
+#include <memory>
 
 	static constexpr int ESC = 27;
 	static constexpr int INSTRUCTIONS = 56;
@@ -40,7 +41,7 @@ protected:
 	Pauline pauline;
 	Menu menu;
 	std::vector<Barrel> barrels;
-	std::vector<Enemy> ghosts;
+	std::vector<Ghost*> ghosts;
 	Hammer hammer;
 	std::vector<std::string> vec_to_fill;
 	size_t iteration = 0;
@@ -72,5 +73,6 @@ public:
 	bool isNotNumber(char c) {
 		return !std::isdigit(static_cast<unsigned char>(c));
 	}
+	void clearVector();
 };
 

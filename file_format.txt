@@ -1,0 +1,9 @@
+Results_file:
+number of events
+iteration event 
+score gained
+
+Setps_file:
+random seed
+number of steps
+iteration step
